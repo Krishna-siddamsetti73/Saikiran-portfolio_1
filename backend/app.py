@@ -35,7 +35,7 @@ def send_message():
             return jsonify({"error": "Missing required fields"}), 400
         
         # 1. Send WhatsApp message
-        save_contact_to_file(name, email, subject, message)
+        send_notification_email(name, email, subject, message)
         
         # 2. Send thank you email
         send_thankyou_email(name, email)
@@ -48,39 +48,43 @@ def send_message():
 
 
 
-def save_contact_to_file(name, email, subject, message):
-    """Save contact form submission to a JSON file"""
+def send_notification_email(name, email, subject, message):
+    """Send notification email to yourself"""
     try:
-        data = {
-            "name": name,
-            "email": email,
-            "subject": subject,
-            "message": message,
-            "timestamp": datetime.now().isoformat()
-        }
+        msg = MIMEMultipart()
+        msg['From'] = EMAIL_USER
+        msg['To'] = EMAIL_USER  # Send to yourself
+        msg['Subject'] = f"New Portfolio Contact: {subject}"
         
-        # Create contacts.json if it doesn't exist
-        try:
-            with open('contacts.json', 'r') as f:
-                contacts = json.load(f)
-        except FileNotFoundError:
-            contacts = []
+        body = f"""
+        New contact form submission from your portfolio:
         
-        contacts.append(data)
+        Name: {name}
+        Email: {email}
+        Subject: {subject}
+        Message: {message}
         
-        with open('contacts.json', 'w') as f:
-            json.dump(contacts, f, indent=2)
-            
-        print(f"Contact saved to file: {name}")
-        return True
+        Time: {datetime.now()}
+        """
+        
+        msg.attach(MIMEText(body, 'plain'))
+        
+        server = smtplib.SMTP('smtp.gmail.com', 587)
+        server.starttls()
+        server.login(EMAIL_USER, EMAIL_PASSWORD)
+        text = msg.as_string()
+        server.sendmail(EMAIL_USER, EMAIL_USER, text)
+        server.quit()
+        
+        print(f"Notification email sent to yourself")
         
     except Exception as e:
-        print(f"Failed to save contact: {str(e)}")
+        print(f"Failed to send notification email: {str(e)}")
         return False
     
 def send_thankyou_email(name, email):
     """
-    Send thank you email to the user
+     thank you email
     """
     try:
         # Create message
