@@ -5,7 +5,6 @@ from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 import os
 from dotenv import load_dotenv
-from twilio.rest import Client  # Add this import
 # Add to your Flask app
 import json
 from datetime import datetime
@@ -20,9 +19,6 @@ CORS(app)  # Enable CORS for all routes
 WHATSAPP_NUMBER = "+919347834548"
 EMAIL_USER = os.getenv("EMAIL_USER")  # Your Gmail address
 EMAIL_PASSWORD = os.getenv("EMAIL_PASSWORD")  # Your Google App Password
-TWILIO_ACCOUNT_SID = os.getenv("TWILIO_ACCOUNT_SID")
-TWILIO_AUTH_TOKEN = os.getenv("TWILIO_AUTH_TOKEN")
-TWILIO_WHATSAPP_NUMBER = os.getenv("TWILIO_WHATSAPP_NUMBER")  # Twilio's WhatsApp number
 
 @app.route('/send-message', methods=['POST'])
 def send_message():
